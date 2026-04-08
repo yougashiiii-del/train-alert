@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ä¹ãéããé²æ­¢">
+  <meta name="theme-color" content="#0f0e17">
+  <link rel="manifest" id="manifest-link">
+  <title>ð ä¹ãéããé²æ­¢ã¢ã©ã¼ã</title>
+  <style>
+    :root {
+      --bg: #0f0e17;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --accent: #e94560;
+      --text: #fffffe;
+      --text2: #a7a9be;
+      --success: #2dc653;
+      --warning: #f4a261;
+      --danger: #e94560;
+      --info: #48cae4;
+      --radius: 14px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      min-height: 100vh; min-height: 100dvh;
+      padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+      overflow-x: hidden;
+    }
+
+    /* âââ Header âââ */
+    .header {
+      background: var(--surface); padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header h1 { font-size: 17px; font-weight: 700; }
+    .badge {
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; letter-spacing: .4px;
+    }
+    .badge.idle   { background: rgba(167,169,190,.15); color: var(--text2); }
+    .badge.watch  { background: rgba(45,198,83,.18);  color: var(--success); }
+    .badge.alert  { background: rgba(233,69,96,.2);   color: var(--danger); animation: pulse .9s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+    /* âââ Content âââ */
+    .content { padding: 14px; max-width: 480px; margin: 0 auto; }
+
+    /* âââ Permission Banner âââ */
+    .perm-banner {
+      background: rgba(244,162,97,.12); border: 1px solid rgba(244,162,97,.35);
+      border-radius: var(--radius); padding: 11px 14px; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .perm-banner span { font-size: 13px; color: var(--warning); }
+    .perm-banner button {
+      background: var(--warning); color: #1a1a2e; padding: 5px 12px; border-radius: 8px;
+      border: none; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      font-family: inherit;
+    }
+    .hidden { display: none !important; }
+
+    /* âââ Speed Card âââ */
+    .speed-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 18px 20px; margin-bottom: 10px; text-align: center;
+    }
+    .speed-num { font-size: 60px; font-weight: 800; line-height: 1; color: var(--info); font-variant-numeric: tabular-nums; }
+    .speed-unit { font-size: 16px; color: var(--text2); margin-top: 2px; }
+    .speed-label {
+      margin-top: 6px; font-size: 12px; padding: 3px 10px;
+      border-radius: 20px; display: inline-block;
+    }
+    .speed-label.train    { background: rgba(45,198,83,.15); color: var(--success); }
+    .speed-label.nottrain { background: rgba(167,169,190,.12); color: var(--text2); }
+
+    /* âââ Time Info âââ */
+    .time-row {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 12px 14px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--text2);
+    }
+    .time-state { font-weight: 700; }
+    .time-state.on  { color: var(--success); }
+    .time-state.off { color: var(--text2); }
+
+    /* âââ Route Map âââ */
+    .route-box {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 10px; position: relative;
+    }
+    .route-line {
+      display: flex; align-items: center; justify-content: space-between; position: relative;
+    }
+    .route-line::after {
+      content: ''; position: absolute; left: 28px; right: 28px;
+      height: 2px; background: rgba(255,255,255,.15); top: 50%; transform: translateY(-50%);
+    }
+    .route-stn { display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 1; }
+    .route-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--text2); border: 2px solid var(--surface);
+    }
+    .route-dot.on { background: var(--success); }
+    .route-dot.hot { background: var(--danger); animation: pulse .8s infinite; }
+    .route-stn-name { font-size: 10px; color: var(--text2); text-align: center; line-height: 1.3; }
+    .marker {
+      position: absolute; top: 50%; transform: translate(-50%,-50%);
+      z-index: 2; font-size: 16px; transition: left .6s;
+    }
+
+    /* âââ Station Cards âââ */
+    .sec-title {
+      font-size: 11px; font-weight: 700; color: var(--text2);
+      text-transform: uppercase; letter-spacing: .8px; margin: 14px 0 6px;
+    }
+    .stn-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 14px; margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,.04); transition: border-color .3s;
+    }
+    .stn-card.near   { border-color: var(--warning); }
+    .stn-card.danger  { border-color: var(--danger); }
+    .stn-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .stn-name { font-size: 16px; font-weight: 700; }
+    .stn-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+    .stn-tag.xfer { background: rgba(72,202,228,.18); color: var(--info); }
+    .stn-tag.exit { background: rgba(45,198,83,.18); color: var(--success); }
+    .dist-row { display: flex; align-items: baseline; gap: 4px; }
+    .dist-val { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .dist-val.far  { color: var(--text2); }
+    .dist-val.mid  { color: var(--warning); }
+    .dist-val.close { color: var(--danger); }
+    .dist-unit { font-size: 13px; color: var(--text2); }
+    .bar-wrap { margin-top: 6px; background: rgba(255,255,255,.08); border-radius: 3px; height: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width .5s, background .3s; }
+    .dots { display: flex; gap: 5px; margin-top: 6px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.15); }
+    .dot.on { background: var(--danger); }
+    .dot.done { background: var(--warning); }
+
+    /* âââ GPS Info âââ */
+    .gps-grid {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 12px 14px; margin-bottom: 8px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    }
+    .gps-item { display: flex; flex-direction: column; gap: 1px; }
+    .gps-lbl { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; }
+    .gps-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    /* âââ Controls âââ */
+    .ctrls { margin: 14px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .btn {
+      padding: 13px; border-radius: var(--radius); border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: transform .1s; font-family: inherit;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn-go   { background: var(--success); color: #fff; grid-column: span 2; }
+    .btn-stop { background: var(--danger); color: #fff; grid-column: span 2; }
+    .btn-sec  { background: var(--surface); color: var(--text); border: 1px solid rgba(255,255,255,.08); }
+    .btn-test { background: var(--surface2); color: var(--info); border: 1px solid rgba(72,202,228,.25); }
+
+    /* âââ Settings âââ */
+    .settings { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-top: 6px; }
+    .srow {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .srow:last-child { border: none; }
+    .srow .lbl { font-size: 13px; }
+    .srow .val { font-size: 13px; color: var(--info); }
+    .tog { position: relative; width: 42px; height: 22px; }
+    .tog input { opacity: 0; width: 0; height: 0; }
+    .tog .sl {
+      position: absolute; inset: 0; background: rgba(255,255,255,.15);
+      border-radius: 22px; cursor: pointer; transition: .25s;
+    }
+    .tog .sl::before {
+      content: ''; position: absolute; height: 16px; width: 16px;
+      left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .25s;
+    }
+    .tog input:checked+.sl { background: var(--success); }
+    .tog input:checked+.sl::before { transform: translateX(20px); }
+
+    o* âââ Log âââ */
+    .log-box { background: var(--surface); border-radius: var(--radius); padding: 12px; margin-top: 10px; }
+    .log-hdr { font-size: 11px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
+    .log-list { max-height: 140px; overflow-y: auto; }
+    .log-row { font-size: 11px; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,.03); display: flex; gap: 7px; }
+    .log-t { color: var(--text2); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .log-m { color: var(--text); }
+    .log-m.alert { color: var(--danger); }
+    .log-m.info  { color: var(--info); }
+    .log-m.ok    { color: var(--success); }
+
+    /* âââ Alert Overlay âââ */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(233,69,96,.96); z-index: 1000;
+      flex-direction: column; align-items: center; justify-content: center; padding: 36px;
+    }
+    .overlay.show { display: flex; }
+    .ov-emoji { font-size: 72px; margin-bottom: 16px; animation: shake .45s infinite; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+    .ov-text { font-size: 26px; font-weight: 800; text-align: center; line-height: 1.35; margin-bottom: 28px; white-space: pre-line; }
+    .ov-btn {
+      background: #fff; color: var(--danger); padding: 14px 36px;
+      border-radius: 100px; border: none; font-size: 17px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
+
+    /* âââ Note âââ */
+    .note {
+      background: rgba(244,162,97,.08); border: 1px solid rgba(244,162,97,.25);
+      border-radius: 12px; padding: 12px; margin-top: 12px;
+      font-size: 12px; color: var(--warning); line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<!-- âââ Header âââ -->
+<div class="header">
+  <h1>ð ä¹ãéããé²æ­¢</h1>
+  <span class="badge idle" id="badge">å¾æ©ä¸­</span>
+</div>
+
+<!-- âââ Alert Overlay âââ -->
+<div class="overlay" id="overlay">
+  <div class="ov-emoji" id="ov-emoji">ð</div>
+  <div class="ov-text" id="ov-text"></div>
+  <button class="ov-btn" onclick="dismissOverlay()">OK</button>
+</div>
+
+<!-- âââ Content âââ -->
+<div class="content">
+
+  <!-- Notification Permission -->
+  <div class="perm-banner hidden" id="perm-banner">
+    <span>ð éç¥è¨±å¯ãå¿è¦ã§ã</span>
+    <button onclick="reqPermission()">è¨±å¯ãã</button>
+  </div>
+
+  <!-- Speed -->
+  <div class="speed-card">
+    <div class="speed-num" id="spd-num">â</div>
+    <div class="speed-unit">km/h</div>
+    <div class="speed-label nottrain" id="spd-label">GPSåå¾ä¸­â¦</div>
+  </div>
+
+  <!-- Time Window -->
+  <div class="time-row">
+    <span>â° æ 6â9æ ï¼ å¤ 17â24æ</span>
+    <span class="time-state off" id="tw-state">æéå¤</span>
+  </div>
+
+  <!-- Route Map -->
+  <div class="route-box">
+    <div style="font-size:10px;color:var(--text2);margin-bottom:8px;letter-spacing:.4px">ROUTE</div>
+    <div class="route-line">
+      <div class="route-stn"><div class="route-dot" id="rd-zushi"></div><div class="route-stn-name">éå­</div></div>
+      <div class="route-stn"><div class="route-dot" id="rd-ofuna"></div><div class="route-stn-name">å¤§è¹<br><span style="color:var(--info);font-size:9px">ä¹æ</span></div></div>
+      <div class="route-stn"><div class="route-dot" id="rd-chiga"></div><div class="route-stn-name">èã¶å´</div></div>
+      <div class="marker hidden" id="marker">ð</div>
+    </div>
+  </div>
+
+  <!-- Station Cards -->
+  <div class="sec-title">é§ã¾ã§ã®è·é¢</div>
+
+  <div class="stn-card" id="card-ofuna">
+    <div class="stn-top">
+      <div class="stn-name">ð å¤§è¹é§</div>
+      <span class="stn-tag xfer">ä¹ãæã</span>
+    </div>
+    <div class="dist-row">
+      <div class="dist-val far" id="dv-ofuna">â</div>
+      <div class="dist-unit" id="du-ofuna">km</div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" id="bf-ofuna" style="width:0;background:var(--info)"></div></div>
+    <div class="dots">
+      <div class="dot" id="dot-of2" title="2 km"></div>
+      <div class="dot" id="dot-of5" title="500 m"></div>
+    </div>
+  </div>
+
+  <div class="stn-card" id="card-chiga">
+    <div class="stn-top">
+      <div class="stn-name">ð èã¶å´é§</div>
+      <span class="stn-tag exit">ä¸è»</span>
+    </div>
+    <div class="dist-row">
+      <div class="dist-val far" id="dv-chiga">â</div>
+      <div class="dist-unit" id="du-chiga">km</div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" id="bf-chiga" style="width:0;background:var(--success)"></div></div>
+    <div class="dots">
+      <div class="dot" id="dot-ch15" title="1.5 km"></div>
+    </div>
+  </div>
+
+  <!-- GPS Info -->
+  <div class="sec-title">GPSæå ±</div>
+  <div class="gps-grid">
+    <div class="gps-item"><span class="gps-lbl">ç·¯åº¦</span><span class="gps-val" id="g-lat">â</span></div>
+    <div class="gps-item"><span class="gps-lbl">çµåº¦</span><span class="gps-val" id="g-lon">â</span></div>
+    <div class="gps-item"><span class="gps-lbl">ç²¾åº¦</span><span class="gps-val" id="g-acc">â</span></div>
+    <div class="gps-item"><span class="gps-lbl">æ´æ°</span><span class="gps-val" id="g-upd">â</span></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="sec-title">ã³ã³ãã­ã¼ã«</div>
+  <div class="ctrls">
+    <button class="btn btn-go" id="btn-go" onclick="startWatch()">â¶ ç£è¦éå§</button>
+    <button class="btn btn-stop hidden" id="btn-stop" onclick="stopWatch()">æj¹.§¹ ç£è¦åæ­¢</button>
+    <button class="btn btn-test" onclick="testAlert('ofuna')">ð å¤§è¹ãã¹ã</button>
+    <button class="btn btn-test" onclick="testAlert('chiga')">ð èã¶å´ãã¹ã</button>
+    <button class="btn btn-sec" onclick="toggleSettings()">â è¨­å®</button>
+    <button class="btn btn-sec" onclick="resetFired()">âº ãªã»ãã</button>
+  </div>
+
+  <!-- Settings -->
+  <div class="settings hidden" id="settings">
+    <div class="srow"><span class="lbl">æéå¸¯ã§èªåéå§</span><label class="tog"><input type="checkbox" id="opt-time" checked><span class="sl"></span></label></div>
+    <div class="srow"><span class="lbl">éåº¦ã§é»è»å¤å®</span><label class="tog"><input type="checkbox" id="opt-speed" checked><span class="sl"></span></label></div>
+    <div class="srow"><span class="lbl">ç»é¢ã¹ãªã¼ãé²æ­¢</span><label class="tog"><input type="checkbox" id="opt-wake" checked onchange="handleWakeToggle(this.checked)"><span class="sl"></span></label></div>
+    <div class="srow"><span class="lbl">ã¢ã©ã¼ãç¹°ãè¿ã</span><span class="val">2å</span></div>
+    <div class="srow"><span class="lbl">é»è»éåº¦ç¯å²</span><span class="val">30ã120 km/h</span></div>
+    <div class="srow"><span class="lbl">ããã¯ã°ã©ã¦ã³ãé³å£°</span><label class="tog"><input type="checkbox" id="opt-bgaudio" checked><span class="sl"></span></label></div>
+  </div>
+
+  <!-- Log -->
+  <div class="log-box">
+    <div class="log-hdr">ð ã­ã°</div>
+    <div class="log-list" id="log-list"></div>
+  </div>
+
+  <!-- Notes -->
+  <div class="note">
+    â ï¸ <strong>ããã¯ã°ã©ã¦ã³ãåä½ã«ã¤ãã¦</strong><br>
+    iOSã§ã¯PWAãããã¯ã°ã©ã¦ã³ãã«ãªãã¨GPSãåæ­¢ãã¾ãã<strong>ãç»é¢ã¹ãªã¼ãé²æ­¢ãON</strong>ã§ãã®ã¢ããªãåé¢ã«ããã¾ã¾ä½¿ã£ã¦ãã ãããå±ç ãé²æ­¢ã«ã¯æé©ã§ãã<br>
+    YouTubeç­ãä½¿ãå ´åã¯ãã¯ãã£ã»ã¤ã³ã»ãã¯ãã£ã¨ã®ä½µç¨ãæ¨å¥¨ãã¾ãã
+  </div>
+  <div style="height:28px"></div>
+</div>
+
+<script>
+/* ============================================================
+   ä¹ãéããé²æ­¢ PWA  â  Core Logic
+   ============================================================ */
+
+// âââ å®æ° âââ
+const STN = {
+  zushi:  { lat: 35.2951, lon: 139.5785 },
+  ofuna:  { lat: 35.3196, lon: 139.5333 },
+  chiga:  { lat: 35.3278, lon: 139.4058 }
+};
+
+const ALERTS = {
+  ofuna: [
+    { id: 'of2',  dist: 2.0, msg: 'ð ã¾ããªãå¤§è¹é§ï¼\nä¹ãæãæºåã',           level: 1, dotId: 'dot-of2' },
+    { id: 'of5',  dist: 0.5, msg: 'â ï¸ å¤§è¹é§ã¾ã§ãã¨500mï¼\nä»ããä¹ãæãæºåï¼', level: 2, dotId: 'dot-of5' }
+  ],
+  chiga: [
+    { id: 'ch15', dist: 1.5, msg: 'ð ã¾ããªãèã¶å´é§ï¼\néè»æºåã',             level: 1, dotId: 'dot-ch15' }
+  ]
+};
+
+const SPD_MIN = 30, SPD_MAX = 120;
+const TW = [{ s: 6, e: 9 }, { s: 17, e: 24 }];
+const ALERT_REPEAT = 2;
+const ALERT_INTERVAL = 7000;   // ms between repeats
+const OVERLAY_AUTO_CLOSE = 30000;
+
+// âââ ç¶æ âââ
+let watching = false, watchId = null, wakeLock = null;
+let speed = 0, prevPos = null, prevTime = null;
+let fired = new Set();
+let audioCtx = null, bgOsc = null;
+let checkTimer = null, overlayTimer = null;
+let wasTrain = false;   // trip detection
+
+// âââ åæå âââ
+document.addEventListener('DOMContentLoaded', () => {
+  setupManifest();
+  checkPerm();
+  tickTime();
+  setInterval(tickTime, 20000);
+  log('ã¢ããªèµ·å', 'info');
+
+  // æéå¸¯åãªãèªåéå§
+  setTimeout(() => {
+    if (el('opt-time').checked && inTW()) { startWatch(); log('æéå¸¯èªåéå§', 'ok'); }
+  }, 800);
+});
+
+// âââ ãããã§ã¹ãï¼PWAã¤ã³ã¹ãã¼ã«ç¨ï¼ âââ
+function setupManifest() {
+  try {
+    const m = { name:'ä¹ãéããé²æ­¢ã¢ã©ã¼ã', short_name:'ä¹ãéããé²æ­¢',
+      start_url:'.', display:'standalone', background_color:'#0f0e17', theme_color:'#0f0e17',
+      icons:[{ src:'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text y=\".9em\" font-size=\"90\">ð</text></svg>', sizes:'512x512', type:'image/svg+xml' }] };
+    const b = new Blob([JSON.stringify(m)], { type:'application/manifest+json' });
+    el('manifest-link').href = URL.createObjectURL(b);
+  } catch(e) {}
+}
+
+// ââââââââââââââââââââââââââââââ
+//  ç£è¦ éå§ / åæ­¢
+// ââââââââââââââââââââââââââââââ
+function startWatch() {
+  if (watching) return;
+  if (!navigator.geolocation) { alert('GPSéå¯¾å¿'); return; }
+  initAudio();                       // ã¦ã¼ã¶ã¼ã¸ã§ã¹ãã£ã¼å¾ã«åæå
+  watching = true;
+  watchId = navigator.geolocation.watchPosition(onPos, onErr, {
+    enableHighAccuracy: true, maximumAge: 3000, timeout: 15000
+  });
+  reqWake();
+  startBgAudio();
+  checkTimer = setInterval(tickTime, 15000);
+  uiState();
+  log('ç£è¦éå§', 'ok');
+}
+function stopWatch() {
+  if (!watching) return;
+  watching = false;
+  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  relWake(); stopBgAudio();
+  if (checkTimer) { clearInterval(checkTimer); checkTimer = null; }
+  uiState();
+  log('ç£è¦åæ­¢', 'info');
+}
+
+// ââââââââââââââââââââââââââââââ
+//  GPS ã³ã¼ã«ããã¯
+// ââââââââââââââââââââââââââââââ
+function onPos(p) {
+  const { latitude: lat, longitude: lon, accuracy: acc, speed: gspd } = p.coords;
+
+  // éåº¦ï¼GPSåªåããªããã°ä½ç½®å·®åã§è¨ç®ï¼
+  let calcSpd = null;
+  if (prevPos) {
+    const d = hav(prevPos.lat, prevPos.lon, lat, lon) * 1000;
+    const dt = (p.timestamp - prevTime) / 1000;
+    if (dt > 0 && dt < 60) calcSpd = (d / dt) * 3.6;
+  }
+  speed = (gspd != null && gspd > 0) ? gspd * 3.6 : (calcSpd ?? 0);
+  prevPos = { lat, lon }; prevTime = p.timestamp;
+
+  // â UI: éåº¦ â
+  el('spd-num').textContent = Math.round(speed);
+  const useSpd = el('opt-speed').checked;
+  const isTrain = !useSpd || (speed >= SPD_MIN && speed <= SPD_MAX);
+  el('spd-num').style.color = isTrain ? 'var(--success)' : (speed > SPD_MAX ? 'var(--warning)' : 'var(--info)');
+  const sl = el('spd-label');
+  if (isTrain) { sl.textContent='ð é»è»å¤å®'; sl.className='speed-label train'; }
+  else if (speed > SPD_MAX) { sl.textContent='âï¸ éåº¦è¶é'; sl.className='speed-label nottrain'; }
+  else { sl.textContent='ð¶ ä½é'; sl.className='speed-label nottrain'; }
+
+  // â Trip detection: æ°ä¹è»ã§ã¢ã©ã¼ããªã»ãã â
+  if (isTrain && !wasTrain) { fired.clear(); clearDots(); log('ð ä¹è»æ¤ç¥ â ã¢ã©ã¼ããªã»ãã', 'ok'); }
+  wasTrain = isTrain;
+
+  // â GPS info â
+  el('g-lat').textContent = lat.toFixed(5);
+  el('g-lon').textContent = lon.toFixed(5);
+  el('g-acc').textContent = acc.toFixed(0) + ' m';
+  el('g-upd').textContent = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+  // â è·é¢ â
+  const dOfuna = hav(lat, lon, STN.ofuna.lat, STN.ofuna.lon);
+  const dChiga = hav(lat, lon, STN.chiga.lat, STN.chiga.lon);
+  updDist('ofuna', dOfuna, 25);
+  updDist('chiga', dChiga, 20);
+
+  // â ã«ã¼ããã¼ã«ã¼ â
+  updMarker(lon);
+
+  // â ã¢ã©ã¼ãå¤å® â
+  if (watching && isTrain && inTW()) {
+    checkAlerts('ofuna', dOfuna);
+    checkAlerts('chiga', dChiga);
+    setBadge('watch');
+  } else if (watching) {
+    setBadge('watch');
+  }
+}
+
+function onErr(e) {
+  const msgs = { 1:'GPSæ¨©éãæå¦ããã¾ãã', 2:'ä½ç½®ãåå¾ã§ãã¾ãã', 3:'GPSåå¾ã¿ã¤ã ã¢ã¦ã' };
+  log(msgs[e.code] || 'GPSã¨ã©ã¼', 'alert');
+}
+
+// ââââââââââââââââââââââââââââââ
+//  ã¢ã©ã¼ãå¤å® & çºç«
+// ââââââââââââââââââââââââââââââ
+function checkAlerts(key, dist) {
+  (ALERTS[key] || []).forEach(a => {
+    const dot = el(a.dotId);
+    if (dist <= a.dist) {
+      if (dot) dot.classList.add('on');
+      if (!fired.has(a.id)) { fired.add(a.id); fireAlert(a.msg, a.level); }
+    } else if (dist > a.dist + 0.3) {
+      if (dot) { dot.classList.remove('on'); if (fired.has(a.id)) dot.classList.add('done'); }
+    }
+  });
+}
+
+function fireAlert(msg, level) {
+  log('ð ' + msg.replace(/\n/g, ' '), 'alert');
+  setBadge('alert');
+  let count = 0;
+  (function go() {
+    showOverlay(msg);
+    playSound(level);
+    vibrate(level);
+    sendNotif(msg, level);
+    count++;
+    if (count < ALERT_REPEAT) setTimeout(go, ALERT_INTERVAL);
+  })();
+}
+
+// â Overlay â
+function showOverlay(msg) {
+  el('ov-text').textContent = msg;
+  el('overlay').classList.add('show');
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(dismissOverlay, OVERLAY_AUTO_CLOSE);
+}
+function dismissOverlay() { el('overlay').classList.remove('show'); clearTimeout(overlayTimer); }
+
+// â Test â
+function testAlert(key) {
+  initAudio();
+  const msg = key === 'ofuna'
+    ? 'ð ã¾ããªãå¤§è¹é§ï¼\nä¹ãæãæºåãï¼ãã¹ãï¼'
+    : 'ð ã¾ããªãèã¶å´é§ï¼\néè»æºåãï¼ãã¹ãï¼';
+  fireAlert(msg, 1);
+}
+function resetFired() { fired.clear(); clearDots(); log('ã¢ã©ã¼ããªã»ãã', 'info'); }
+function clearDots() { document.querySelectorAll('.dot').forEach(d => d.classList.remove('on','done')); }
+
+// ââââââââââââââââââââââââââââââ
+//  éç¥
+// ââââââââââââââââââââââââââââââ
+function checkPerm() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') el('perm-banner').classList.remove('hidden');
+}
+async function reqPermission() {
+  if (!('Notification' in window)) { alert('éç¥éå¯¾å¿'); return; }
+  const r = await Notification.requestPermission();
+  if (r === 'granted') {
+    el('perm-banner').classList.add('hidden');
+    log('éç¥è¨±å¯OK', 'ok');
+    new Notification('ä¹ãéããé²æ­¢', { body: 'â éç¥è¨­å®å®äºï¼' });
+  }
+}
+function sendNotif(msg, level) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification('ð ä¹ãéããé²æ­¢', {
+      body: msg.replace(/\n/g, ' '),
+      requireInteraction: level >= 2,
+      silent: false
+    });
+    setTimeout(() => n.close(), 15000);
+  } catch(e) {}
+}
+
+// ââââââââââââââââââââââââââââââ
+//  é³é¿ï¼Web Audio APIï¼
+// ââââââââââââââââââââââââââââââ
+function initAudio() {
+  if (audioCtx) return;
+  try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+}
+function playSound(level) {
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const notes = level >= 2
+    ? [{f:880,d:.25},{f:0,d:.1},{f:880,d:.25},{f:0,d:.1},{f:1100,d:.45}]
+    : [{f:660,d:.35},{f:0,d:.15},{f:660,d:.35}];
+  let t = audioCtx.currentTime;
+  notes.forEach(n => {
+    if (n.f > 0) {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.frequency.value = n.f; o.type = 'sine';
+      g.gain.setValueAtTime(.55, t);
+      g.gain.exponentialRampToValueAtTime(.01, t + n.d);
+      o.start(t); o.stop(t + n.d);
+    }
+    t += n.d;
+  });
+}
+function vibrate(level) {
+  if (!navigator.vibrate) return;
+  navigator.vibrate(level >= 2 ? [500,200,500,200,500] : [300,150,300]);
+}
+
+// â ããã¯ã°ã©ã¦ã³ãé³å£°ã­ã¼ãã¢ã©ã¤ã â
+function startBgAudio() {
+  if (!audioCtx || !el('opt-bgaudio').checked) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  try {
+    bgOsc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    g.gain.value = 0.001;            // ã»ã¼ç¡é³
+    bgOsc.connect(g); g.connect(audioCtx.destination);
+    bgOsc.start();
+    log('BGé³å£°ã­ã¼ãã¢ã©ã¤ãéå§', 'info');
+  } catch(e) {}
+}
+function stopBgAudio() {
+  if (bgOsc) { try { bgOsc.stop(); } catch(e) {} bgOsc = null; }
+}
+
+// âââââââââââââââââââââââââââââ
+//  Wake Lock
+// ââââââââââââââââââââââââââââââ
+async function reqWake() {
+  if (!('wakeLock' in navigator) || !el('opt-wake').checked) return;
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    log('ç»é¢ã¹ãªã¼ãé²æ­¢ ON', 'ok');
+    wakeLock.addEventListener('release', () => {
+      log('Wake Lock è§£é¤', 'info');
+      if (watching) setTimeout(reqWake, 800);
+    });
+  } catch(e) { log('Wake Lockä¸å¯: ' + e.message, 'info'); }
+}
+async function relWake() { if (wakeLock) { try { await wakeLock.release(); } catch(e) {} wakeLock=null; } }
+function handleWakeToggle(on) { if (on && watching) reqWake(); else relWake(); }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && watching) { reqWake(); log('ç»é¢å¾©å¸°', 'info'); }
+});
+
+// ââââââââââââââââââââââââââââââ
+//  UI ã¦ã¼ãã£ãªãã£
+// ââââââââââââââââââââââââââââââ
+function el(id) { return document.getElementById(id); }
+
+function uiState() {
+  el('btn-go').classList.toggle('hidden', watching);
+  el('btn-stop').classList.toggle('hidden', !watching);
+  setBadge(watching ? 'watch' : 'idle');
+}
+
+function setBadge(s) {
+  const b = el('badge');
+  const map = { idle:'å¾æ©ä¸­', watch:'ç£è¦ä¸­', alert:'â ï¸ ã¢ã©ã¼ã' };
+  b.textContent = map[s] || s;
+  b.className = 'badge ' + s;
+}
+
+function updDist(key, dist, maxD) {
+  const pre = key === 'ofuna' ? 'ofuna' : 'chiga';
+  const vEl = el('dv-' + pre), uEl = el('du-' + pre), bEl = el('bf-' + pre), cEl = el('card-' + pre);
+  if (dist < 1) { vEl.textContent = (dist*1000).toFixed(0); uEl.textContent = 'm'; }
+  else           { vEl.textContent = dist.toFixed(1);        uEl.textContent = 'km'; }
+  const pct = Math.max(0, Math.min(100, (1 - dist/maxD)*100));
+  bEl.style.width = pct + '%';
+  if (dist <= 0.5)      { vEl.className='dist-val close'; cEl.className='stn-card danger'; bEl.style.background='var(--danger)'; }
+  else if (dist <= 2.0)  { vEl.className='dist-val mid';   cEl.className='stn-card near';   bEl.style.background='var(--warning)'; }
+  else                    { vEl.className='dist-val far';   cEl.className='stn-card';        bEl.style.background = key==='ofuna'?'var(--info)':'var(--success)'; }
+}
+
+function updMarker(lon) {
+  const mk = el('marker');
+  const lo = STN.chiga.lon, hi = STN.zushi.lon;
+  if (lon >= lo && lon <= hi) {
+    mk.classList.remove('hidden');
+    mk.style.left = (5 + ((hi - lon)/(hi - lo))*90) + '%';
+  } else { mk.classList.add('hidden'); }
+}
+
+function tickTime() {
+  const ok = inTW();
+  const tw = el('tw-state');
+  tw.textContent = ok ? 'â æéå' : nextTW();
+  tw.className = 'time-state ' + (ok ? 'on' : 'off');
+}
+function inTW() { const h = new Date().getHours(); return TW.some(w => h >= w.s && h < w.e); }
+function nextTW() { const h=new Date().getHours(); if(h<6)return'æ¬¡:6:00'; if(h<17)return'æ¬¡:17:00'; return'æ¬¡:ç¿6:00'; }
+
+function toggleSettings() { el('settings').classList.toggle('hidden'); }
+
+function log(msg, type='info') {
+  const list = el('log-list');
+  const row = document.createElement('div'); row.className = 'log-row';
+  const t = new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  row.innerHTML = `<span class="log-t">${t}</span><span class="log-m ${type}">${msg}</span>`;
+  list.prepend(row);
+  while (list.children.length > 60) list.removeChild(list.lastChild);
+}
+
+// â Haversine â
+function hav(a1,o1,a2,o2) {
+  const R=6371, dr=Math.PI/180;
+  const dLat=(a2-a1)*dr, dLon=(o2-o1)*dr;
+  const a=Math.sin(dLat/2)**2 + Math.cos(a1*dr)*Math.cos(a2*dr)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+</script>
+</body>
+</html>
