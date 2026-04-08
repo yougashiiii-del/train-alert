@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ä¹ãéããé²æ­¢">
+  <meta name="apple-mobile-web-app-title" content="乗り過ごし防止">
   <meta name="theme-color" content="#0f0e17">
   <link rel="manifest" id="manifest-link">
-  <title>ð ä¹ãéããé²æ­¢ã¢ã©ã¼ã</title>
+  <title>🚃 乗り過ごし防止アラート</title>
   <style>
     :root {
       --bg: #0f0e17;
@@ -32,7 +32,7 @@
       overflow-x: hidden;
     }
 
-    /* âââ Header âââ */
+    /* ─── Header ─── */
     .header {
       background: var(--surface); padding: 14px 20px;
       display: flex; align-items: center; justify-content: space-between;
@@ -49,10 +49,10 @@
     .badge.alert  { background: rgba(233,69,96,.2);   color: var(--danger); animation: pulse .9s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
 
-    /* âââ Content âââ */
+    /* ─── Content ─── */
     .content { padding: 14px; max-width: 480px; margin: 0 auto; }
 
-    /* âââ Permission Banner âââ */
+    /* ─── Permission Banner ─── */
     .perm-banner {
       background: rgba(244,162,97,.12); border: 1px solid rgba(244,162,97,.35);
       border-radius: var(--radius); padding: 11px 14px; margin-bottom: 12px;
@@ -66,7 +66,7 @@
     }
     .hidden { display: none !important; }
 
-    /* âââ Speed Card âââ */
+    /* ─── Speed Card ─── */
     .speed-card {
       background: var(--surface); border-radius: var(--radius);
       padding: 18px 20px; margin-bottom: 10px; text-align: center;
@@ -80,7 +80,7 @@
     .speed-label.train    { background: rgba(45,198,83,.15); color: var(--success); }
     .speed-label.nottrain { background: rgba(167,169,190,.12); color: var(--text2); }
 
-    /* âââ Time Info âââ */
+    /* ─── Time Info ─── */
     .time-row {
       background: var(--surface); border-radius: var(--radius);
       padding: 12px 14px; margin-bottom: 10px;
@@ -91,7 +91,7 @@
     .time-state.on  { color: var(--success); }
     .time-state.off { color: var(--text2); }
 
-    /* âââ Route Map âââ */
+    /* ─── Route Map ─── */
     .route-box {
       background: var(--surface); border-radius: var(--radius);
       padding: 14px 16px; margin-bottom: 10px; position: relative;
@@ -116,7 +116,7 @@
       z-index: 2; font-size: 16px; transition: left .6s;
     }
 
-    /* âââ Station Cards âââ */
+    /* ─── Station Cards ─── */
     .sec-title {
       font-size: 11px; font-weight: 700; color: var(--text2);
       text-transform: uppercase; letter-spacing: .8px; margin: 14px 0 6px;
@@ -146,7 +146,7 @@
     .dot.on { background: var(--danger); }
     .dot.done { background: var(--warning); }
 
-    /* âââ GPS Info âââ */
+    /* ─── GPS Info ─── */
     .gps-grid {
       background: var(--surface); border-radius: var(--radius);
       padding: 12px 14px; margin-bottom: 8px;
@@ -156,7 +156,7 @@
     .gps-lbl { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; }
     .gps-val { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
 
-    /* âââ Controls âââ */
+    /* ─── Controls ─── */
     .ctrls { margin: 14px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
     .btn {
       padding: 13px; border-radius: var(--radius); border: none;
@@ -169,7 +169,7 @@
     .btn-sec  { background: var(--surface); color: var(--text); border: 1px solid rgba(255,255,255,.08); }
     .btn-test { background: var(--surface2); color: var(--info); border: 1px solid rgba(72,202,228,.25); }
 
-    /* âââ Settings âââ */
+    /* ─── Settings ─── */
     .settings { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-top: 6px; }
     .srow {
       display: flex; align-items: center; justify-content: space-between;
@@ -191,7 +191,7 @@
     .tog input:checked+.sl { background: var(--success); }
     .tog input:checked+.sl::before { transform: translateX(20px); }
 
-    o* âââ Log âââ */
+    /* ─── Log ─── */
     .log-box { background: var(--surface); border-radius: var(--radius); padding: 12px; margin-top: 10px; }
     .log-hdr { font-size: 11px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
     .log-list { max-height: 140px; overflow-y: auto; }
@@ -202,7 +202,7 @@
     .log-m.info  { color: var(--info); }
     .log-m.ok    { color: var(--success); }
 
-    /* âââ Alert Overlay âââ */
+    /* ─── Alert Overlay ─── */
     .overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(233,69,96,.96); z-index: 1000;
@@ -218,7 +218,7 @@
       cursor: pointer; font-family: inherit;
     }
 
-    /* âââ Note âââ */
+    /* ─── Note ─── */
     .note {
       background: rgba(244,162,97,.08); border: 1px solid rgba(244,162,97,.25);
       border-radius: 12px; padding: 12px; margin-top: 12px;
@@ -228,62 +228,62 @@
 </head>
 <body>
 
-<!-- âââ Header âââ -->
+<!-- ─── Header ─── -->
 <div class="header">
-  <h1>ð ä¹ãéããé²æ­¢</h1>
-  <span class="badge idle" id="badge">å¾æ©ä¸­</span>
+  <h1>🚃 乗り過ごし防止</h1>
+  <span class="badge idle" id="badge">待機中</span>
 </div>
 
-<!-- âââ Alert Overlay âââ -->
+<!-- ─── Alert Overlay ─── -->
 <div class="overlay" id="overlay">
-  <div class="ov-emoji" id="ov-emoji">ð</div>
+  <div class="ov-emoji" id="ov-emoji">🚃</div>
   <div class="ov-text" id="ov-text"></div>
   <button class="ov-btn" onclick="dismissOverlay()">OK</button>
 </div>
 
-<!-- âââ Content âââ -->
+<!-- ─── Content ─── -->
 <div class="content">
 
   <!-- Notification Permission -->
   <div class="perm-banner hidden" id="perm-banner">
-    <span>ð éç¥è¨±å¯ãå¿è¦ã§ã</span>
-    <button onclick="reqPermission()">è¨±å¯ãã</button>
+    <span>🔔 通知許可が必要です</span>
+    <button onclick="reqPermission()">許可する</button>
   </div>
 
   <!-- Speed -->
   <div class="speed-card">
-    <div class="speed-num" id="spd-num">â</div>
+    <div class="speed-num" id="spd-num">—</div>
     <div class="speed-unit">km/h</div>
-    <div class="speed-label nottrain" id="spd-label">GPSåå¾ä¸­â¦</div>
+    <div class="speed-label nottrain" id="spd-label">GPS取得中…</div>
   </div>
 
   <!-- Time Window -->
   <div class="time-row">
-    <span>â° æ 6â9æ ï¼ å¤ 17â24æ</span>
-    <span class="time-state off" id="tw-state">æéå¤</span>
+    <span>⏰ 朝 6‑9時 ／ 夕 17‑24時</span>
+    <span class="time-state off" id="tw-state">時間外</span>
   </div>
 
   <!-- Route Map -->
   <div class="route-box">
     <div style="font-size:10px;color:var(--text2);margin-bottom:8px;letter-spacing:.4px">ROUTE</div>
     <div class="route-line">
-      <div class="route-stn"><div class="route-dot" id="rd-zushi"></div><div class="route-stn-name">éå­</div></div>
-      <div class="route-stn"><div class="route-dot" id="rd-ofuna"></div><div class="route-stn-name">å¤§è¹<br><span style="color:var(--info);font-size:9px">ä¹æ</span></div></div>
-      <div class="route-stn"><div class="route-dot" id="rd-chiga"></div><div class="route-stn-name">èã¶å´</div></div>
-      <div class="marker hidden" id="marker">ð</div>
+      <div class="route-stn"><div class="route-dot" id="rd-zushi"></div><div class="route-stn-name">逗子</div></div>
+      <div class="route-stn"><div class="route-dot" id="rd-ofuna"></div><div class="route-stn-name">大船<br><span style="color:var(--info);font-size:9px">乗換</span></div></div>
+      <div class="route-stn"><div class="route-dot" id="rd-chiga"></div><div class="route-stn-name">茅ヶ崎</div></div>
+      <div class="marker hidden" id="marker">📍</div>
     </div>
   </div>
 
   <!-- Station Cards -->
-  <div class="sec-title">é§ã¾ã§ã®è·é¢</div>
+  <div class="sec-title">駅までの距離</div>
 
   <div class="stn-card" id="card-ofuna">
     <div class="stn-top">
-      <div class="stn-name">ð å¤§è¹é§</div>
-      <span class="stn-tag xfer">ä¹ãæã</span>
+      <div class="stn-name">🔄 大船駅</div>
+      <span class="stn-tag xfer">乗り換え</span>
     </div>
     <div class="dist-row">
-      <div class="dist-val far" id="dv-ofuna">â</div>
+      <div class="dist-val far" id="dv-ofuna">—</div>
       <div class="dist-unit" id="du-ofuna">km</div>
     </div>
     <div class="bar-wrap"><div class="bar-fill" id="bf-ofuna" style="width:0;background:var(--info)"></div></div>
@@ -295,11 +295,11 @@
 
   <div class="stn-card" id="card-chiga">
     <div class="stn-top">
-      <div class="stn-name">ð èã¶å´é§</div>
-      <span class="stn-tag exit">ä¸è»</span>
+      <div class="stn-name">🏁 茅ヶ崎駅</div>
+      <span class="stn-tag exit">下車</span>
     </div>
     <div class="dist-row">
-      <div class="dist-val far" id="dv-chiga">â</div>
+      <div class="dist-val far" id="dv-chiga">—</div>
       <div class="dist-unit" id="du-chiga">km</div>
     </div>
     <div class="bar-wrap"><div class="bar-fill" id="bf-chiga" style="width:0;background:var(--success)"></div></div>
@@ -309,56 +309,56 @@
   </div>
 
   <!-- GPS Info -->
-  <div class="sec-title">GPSæå ±</div>
+  <div class="sec-title">GPS情報</div>
   <div class="gps-grid">
-    <div class="gps-item"><span class="gps-lbl">ç·¯åº¦</span><span class="gps-val" id="g-lat">â</span></div>
-    <div class="gps-item"><span class="gps-lbl">çµåº¦</span><span class="gps-val" id="g-lon">â</span></div>
-    <div class="gps-item"><span class="gps-lbl">ç²¾åº¦</span><span class="gps-val" id="g-acc">â</span></div>
-    <div class="gps-item"><span class="gps-lbl">æ´æ°</span><span class="gps-val" id="g-upd">â</span></div>
+    <div class="gps-item"><span class="gps-lbl">緯度</span><span class="gps-val" id="g-lat">—</span></div>
+    <div class="gps-item"><span class="gps-lbl">経度</span><span class="gps-val" id="g-lon">—</span></div>
+    <div class="gps-item"><span class="gps-lbl">精度</span><span class="gps-val" id="g-acc">—</span></div>
+    <div class="gps-item"><span class="gps-lbl">更新</span><span class="gps-val" id="g-upd">—</span></div>
   </div>
 
   <!-- Controls -->
-  <div class="sec-title">ã³ã³ãã­ã¼ã«</div>
+  <div class="sec-title">コントロール</div>
   <div class="ctrls">
-    <button class="btn btn-go" id="btn-go" onclick="startWatch()">â¶ ç£è¦éå§</button>
-    <button class="btn btn-stop hidden" id="btn-stop" onclick="stopWatch()">æj¹.§¹ ç£è¦åæ­¢</button>
-    <button class="btn btn-test" onclick="testAlert('ofuna')">ð å¤§è¹ãã¹ã</button>
-    <button class="btn btn-test" onclick="testAlert('chiga')">ð èã¶å´ãã¹ã</button>
-    <button class="btn btn-sec" onclick="toggleSettings()">â è¨­å®</button>
-    <button class="btn btn-sec" onclick="resetFired()">âº ãªã»ãã</button>
+    <button class="btn btn-go" id="btn-go" onclick="startWatch()">▶ 監視開始</button>
+    <button class="btn btn-stop hidden" id="btn-stop" onclick="stopWatch()">⏹ 監視停止</button>
+    <button class="btn btn-test" onclick="testAlert('ofuna')">🔔 大船テスト</button>
+    <button class="btn btn-test" onclick="testAlert('chiga')">🔔 茅ヶ崎テスト</button>
+    <button class="btn btn-sec" onclick="toggleSettings()">⚙ 設定</button>
+    <button class="btn btn-sec" onclick="resetFired()">↺ リセット</button>
   </div>
 
   <!-- Settings -->
   <div class="settings hidden" id="settings">
-    <div class="srow"><span class="lbl">æéå¸¯ã§èªåéå§</span><label class="tog"><input type="checkbox" id="opt-time" checked><span class="sl"></span></label></div>
-    <div class="srow"><span class="lbl">éåº¦ã§é»è»å¤å®</span><label class="tog"><input type="checkbox" id="opt-speed" checked><span class="sl"></span></label></div>
-    <div class="srow"><span class="lbl">ç»é¢ã¹ãªã¼ãé²æ­¢</span><label class="tog"><input type="checkbox" id="opt-wake" checked onchange="handleWakeToggle(this.checked)"><span class="sl"></span></label></div>
-    <div class="srow"><span class="lbl">ã¢ã©ã¼ãç¹°ãè¿ã</span><span class="val">2å</span></div>
-    <div class="srow"><span class="lbl">é»è»éåº¦ç¯å²</span><span class="val">30ã120 km/h</span></div>
-    <div class="srow"><span class="lbl">ããã¯ã°ã©ã¦ã³ãé³å£°</span><label class="tog"><input type="checkbox" id="opt-bgaudio" checked><span class="sl"></span></label></div>
+    <div class="srow"><span class="lbl">時間帯で自動開始</span><label class="tog"><input type="checkbox" id="opt-time" checked><span class="sl"></span></label></div>
+    <div class="srow"><span class="lbl">速度で電車判定</span><label class="tog"><input type="checkbox" id="opt-speed" checked><span class="sl"></span></label></div>
+    <div class="srow"><span class="lbl">画面スリープ防止</span><label class="tog"><input type="checkbox" id="opt-wake" checked onchange="handleWakeToggle(this.checked)"><span class="sl"></span></label></div>
+    <div class="srow"><span class="lbl">アラート繰り返し</span><span class="val">2回</span></div>
+    <div class="srow"><span class="lbl">電車速度範囲</span><span class="val">30〜120 km/h</span></div>
+    <div class="srow"><span class="lbl">バックグラウンド音声</span><label class="tog"><input type="checkbox" id="opt-bgaudio" checked><span class="sl"></span></label></div>
   </div>
 
   <!-- Log -->
   <div class="log-box">
-    <div class="log-hdr">ð ã­ã°</div>
+    <div class="log-hdr">📋 ログ</div>
     <div class="log-list" id="log-list"></div>
   </div>
 
   <!-- Notes -->
   <div class="note">
-    â ï¸ <strong>ããã¯ã°ã©ã¦ã³ãåä½ã«ã¤ãã¦</strong><br>
-    iOSã§ã¯PWAãããã¯ã°ã©ã¦ã³ãã«ãªãã¨GPSãåæ­¢ãã¾ãã<strong>ãç»é¢ã¹ãªã¼ãé²æ­¢ãON</strong>ã§ãã®ã¢ããªãåé¢ã«ããã¾ã¾ä½¿ã£ã¦ãã ãããå±ç ãé²æ­¢ã«ã¯æé©ã§ãã<br>
-    YouTubeç­ãä½¿ãå ´åã¯ãã¯ãã£ã»ã¤ã³ã»ãã¯ãã£ã¨ã®ä½µç¨ãæ¨å¥¨ãã¾ãã
+    ⚠️ <strong>バックグラウンド動作について</strong><br>
+    iOSではPWAがバックグラウンドになるとGPSが停止します。<strong>「画面スリープ防止」ON</strong>でこのアプリを前面にしたまま使ってください。居眠り防止には最適です。<br>
+    YouTube等を使う場合はピクチャ・イン・ピクチャとの併用を推奨します。
   </div>
   <div style="height:28px"></div>
 </div>
 
 <script>
 /* ============================================================
-   ä¹ãéããé²æ­¢ PWA  â  Core Logic
+   乗り過ごし防止 PWA  —  Core Logic
    ============================================================ */
 
-// âââ å®æ° âââ
+// ─── 定数 ───
 const STN = {
   zushi:  { lat: 35.2951, lon: 139.5785 },
   ofuna:  { lat: 35.3196, lon: 139.5333 },
@@ -367,11 +367,11 @@ const STN = {
 
 const ALERTS = {
   ofuna: [
-    { id: 'of2',  dist: 2.0, msg: 'ð ã¾ããªãå¤§è¹é§ï¼\nä¹ãæãæºåã',           level: 1, dotId: 'dot-of2' },
-    { id: 'of5',  dist: 0.5, msg: 'â ï¸ å¤§è¹é§ã¾ã§ãã¨500mï¼\nä»ããä¹ãæãæºåï¼', level: 2, dotId: 'dot-of5' }
+    { id: 'of2',  dist: 2.0, msg: '🚃 まもなく大船駅！\n乗り換え準備を',           level: 1, dotId: 'dot-of2' },
+    { id: 'of5',  dist: 0.5, msg: '⚠️ 大船駅まであと500m！\n今すぐ乗り換え準備！', level: 2, dotId: 'dot-of5' }
   ],
   chiga: [
-    { id: 'ch15', dist: 1.5, msg: 'ð ã¾ããªãèã¶å´é§ï¼\néè»æºåã',             level: 1, dotId: 'dot-ch15' }
+    { id: 'ch15', dist: 1.5, msg: '🏁 まもなく茅ヶ崎駅！\n降車準備を',             level: 1, dotId: 'dot-ch15' }
   ]
 };
 
@@ -381,7 +381,7 @@ const ALERT_REPEAT = 2;
 const ALERT_INTERVAL = 7000;   // ms between repeats
 const OVERLAY_AUTO_CLOSE = 30000;
 
-// âââ ç¶æ âââ
+// ─── 状態 ───
 let watching = false, watchId = null, wakeLock = null;
 let speed = 0, prevPos = null, prevTime = null;
 let fired = new Set();
@@ -389,38 +389,38 @@ let audioCtx = null, bgOsc = null;
 let checkTimer = null, overlayTimer = null;
 let wasTrain = false;   // trip detection
 
-// âââ åæå âââ
+// ─── 初期化 ───
 document.addEventListener('DOMContentLoaded', () => {
   setupManifest();
   checkPerm();
   tickTime();
   setInterval(tickTime, 20000);
-  log('ã¢ããªèµ·å', 'info');
+  log('アプリ起動', 'info');
 
-  // æéå¸¯åãªãèªåéå§
+  // 時間帯内なら自動開始
   setTimeout(() => {
-    if (el('opt-time').checked && inTW()) { startWatch(); log('æéå¸¯èªåéå§', 'ok'); }
+    if (el('opt-time').checked && inTW()) { startWatch(); log('時間帯自動開始', 'ok'); }
   }, 800);
 });
 
-// âââ ãããã§ã¹ãï¼PWAã¤ã³ã¹ãã¼ã«ç¨ï¼ âââ
+// ─── マニフェスト（PWAインストール用） ───
 function setupManifest() {
   try {
-    const m = { name:'ä¹ãéããé²æ­¢ã¢ã©ã¼ã', short_name:'ä¹ãéããé²æ­¢',
+    const m = { name:'乗り過ごし防止アラート', short_name:'乗り過ごし防止',
       start_url:'.', display:'standalone', background_color:'#0f0e17', theme_color:'#0f0e17',
-      icons:[{ src:'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text y=\".9em\" font-size=\"90\">ð</text></svg>', sizes:'512x512', type:'image/svg+xml' }] };
+      icons:[{ src:'data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><text y=\".9em\" font-size=\"90\">🚃</text></svg>', sizes:'512x512', type:'image/svg+xml' }] };
     const b = new Blob([JSON.stringify(m)], { type:'application/manifest+json' });
     el('manifest-link').href = URL.createObjectURL(b);
   } catch(e) {}
 }
 
-// ââââââââââââââââââââââââââââââ
-//  ç£è¦ éå§ / åæ­¢
-// ââââââââââââââââââââââââââââââ
+// ──────────────────────────────
+//  監視 開始 / 停止
+// ──────────────────────────────
 function startWatch() {
   if (watching) return;
-  if (!navigator.geolocation) { alert('GPSéå¯¾å¿'); return; }
-  initAudio();                       // ã¦ã¼ã¶ã¼ã¸ã§ã¹ãã£ã¼å¾ã«åæå
+  if (!navigator.geolocation) { alert('GPS非対応'); return; }
+  initAudio();                       // ユーザージェスチャー後に初期化
   watching = true;
   watchId = navigator.geolocation.watchPosition(onPos, onErr, {
     enableHighAccuracy: true, maximumAge: 3000, timeout: 15000
@@ -429,7 +429,7 @@ function startWatch() {
   startBgAudio();
   checkTimer = setInterval(tickTime, 15000);
   uiState();
-  log('ç£è¦éå§', 'ok');
+  log('監視開始', 'ok');
 }
 function stopWatch() {
   if (!watching) return;
@@ -438,16 +438,16 @@ function stopWatch() {
   relWake(); stopBgAudio();
   if (checkTimer) { clearInterval(checkTimer); checkTimer = null; }
   uiState();
-  log('ç£è¦åæ­¢', 'info');
+  log('監視停止', 'info');
 }
 
-// ââââââââââââââââââââââââââââââ
-//  GPS ã³ã¼ã«ããã¯
-// ââââââââââââââââââââââââââââââ
+// ──────────────────────────────
+//  GPS コールバック
+// ──────────────────────────────
 function onPos(p) {
   const { latitude: lat, longitude: lon, accuracy: acc, speed: gspd } = p.coords;
 
-  // éåº¦ï¼GPSåªåããªããã°ä½ç½®å·®åã§è¨ç®ï¼
+  // 速度（GPS優先、なければ位置差分で計算）
   let calcSpd = null;
   if (prevPos) {
     const d = hav(prevPos.lat, prevPos.lon, lat, lon) * 1000;
@@ -457,36 +457,36 @@ function onPos(p) {
   speed = (gspd != null && gspd > 0) ? gspd * 3.6 : (calcSpd ?? 0);
   prevPos = { lat, lon }; prevTime = p.timestamp;
 
-  // â UI: éåº¦ â
+  // ─ UI: 速度 ─
   el('spd-num').textContent = Math.round(speed);
   const useSpd = el('opt-speed').checked;
   const isTrain = !useSpd || (speed >= SPD_MIN && speed <= SPD_MAX);
   el('spd-num').style.color = isTrain ? 'var(--success)' : (speed > SPD_MAX ? 'var(--warning)' : 'var(--info)');
   const sl = el('spd-label');
-  if (isTrain) { sl.textContent='ð é»è»å¤å®'; sl.className='speed-label train'; }
-  else if (speed > SPD_MAX) { sl.textContent='âï¸ éåº¦è¶é'; sl.className='speed-label nottrain'; }
-  else { sl.textContent='ð¶ ä½é'; sl.className='speed-label nottrain'; }
+  if (isTrain) { sl.textContent='🚃 電車判定'; sl.className='speed-label train'; }
+  else if (speed > SPD_MAX) { sl.textContent='✈️ 速度超過'; sl.className='speed-label nottrain'; }
+  else { sl.textContent='🚶 低速'; sl.className='speed-label nottrain'; }
 
-  // â Trip detection: æ°ä¹è»ã§ã¢ã©ã¼ããªã»ãã â
-  if (isTrain && !wasTrain) { fired.clear(); clearDots(); log('ð ä¹è»æ¤ç¥ â ã¢ã©ã¼ããªã»ãã', 'ok'); }
+  // ─ Trip detection: 新乗車でアラートリセット ─
+  if (isTrain && !wasTrain) { fired.clear(); clearDots(); log('🚃 乗車検知 → アラートリセット', 'ok'); }
   wasTrain = isTrain;
 
-  // â GPS info â
+  // ─ GPS info ─
   el('g-lat').textContent = lat.toFixed(5);
   el('g-lon').textContent = lon.toFixed(5);
   el('g-acc').textContent = acc.toFixed(0) + ' m';
   el('g-upd').textContent = new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
 
-  // â è·é¢ â
+  // ─ 距離 ─
   const dOfuna = hav(lat, lon, STN.ofuna.lat, STN.ofuna.lon);
   const dChiga = hav(lat, lon, STN.chiga.lat, STN.chiga.lon);
   updDist('ofuna', dOfuna, 25);
   updDist('chiga', dChiga, 20);
 
-  // â ã«ã¼ããã¼ã«ã¼ â
+  // ─ ルートマーカー ─
   updMarker(lon);
 
-  // â ã¢ã©ã¼ãå¤å® â
+  // ─ アラート判定 ─
   if (watching && isTrain && inTW()) {
     checkAlerts('ofuna', dOfuna);
     checkAlerts('chiga', dChiga);
@@ -497,13 +497,13 @@ function onPos(p) {
 }
 
 function onErr(e) {
-  const msgs = { 1:'GPSæ¨©éãæå¦ããã¾ãã', 2:'ä½ç½®ãåå¾ã§ãã¾ãã', 3:'GPSåå¾ã¿ã¤ã ã¢ã¦ã' };
-  log(msgs[e.code] || 'GPSã¨ã©ã¼', 'alert');
+  const msgs = { 1:'GPS権限が拒否されました', 2:'位置を取得できません', 3:'GPS取得タイムアウト' };
+  log(msgs[e.code] || 'GPSエラー', 'alert');
 }
 
-// ââââââââââââââââââââââââââââââ
-//  ã¢ã©ã¼ãå¤å® & çºç«
-// ââââââââââââââââââââââââââââââ
+// ──────────────────────────────
+//  アラート判定 & 発火
+// ──────────────────────────────
 function checkAlerts(key, dist) {
   (ALERTS[key] || []).forEach(a => {
     const dot = el(a.dotId);
@@ -517,7 +517,7 @@ function checkAlerts(key, dist) {
 }
 
 function fireAlert(msg, level) {
-  log('ð ' + msg.replace(/\n/g, ' '), 'alert');
+  log('🔔 ' + msg.replace(/\n/g, ' '), 'alert');
   setBadge('alert');
   let count = 0;
   (function go() {
@@ -530,7 +530,7 @@ function fireAlert(msg, level) {
   })();
 }
 
-// â Overlay â
+// ─ Overlay ─
 function showOverlay(msg) {
   el('ov-text').textContent = msg;
   el('overlay').classList.add('show');
@@ -539,37 +539,37 @@ function showOverlay(msg) {
 }
 function dismissOverlay() { el('overlay').classList.remove('show'); clearTimeout(overlayTimer); }
 
-// â Test â
+// ─ Test ─
 function testAlert(key) {
   initAudio();
   const msg = key === 'ofuna'
-    ? 'ð ã¾ããªãå¤§è¹é§ï¼\nä¹ãæãæºåãï¼ãã¹ãï¼'
-    : 'ð ã¾ããªãèã¶å´é§ï¼\néè»æºåãï¼ãã¹ãï¼';
+    ? '🚃 まもなく大船駅！\n乗り換え準備を（テスト）'
+    : '🏁 まもなく茅ヶ崎駅！\n降車準備を（テスト）';
   fireAlert(msg, 1);
 }
-function resetFired() { fired.clear(); clearDots(); log('ã¢ã©ã¼ããªã»ãã', 'info'); }
+function resetFired() { fired.clear(); clearDots(); log('アラートリセット', 'info'); }
 function clearDots() { document.querySelectorAll('.dot').forEach(d => d.classList.remove('on','done')); }
 
-// ââââââââââââââââââââââââââââââ
-//  éç¥
-// ââââââââââââââââââââââââââââââ
+// ──────────────────────────────
+//  通知
+// ──────────────────────────────
 function checkPerm() {
   if (!('Notification' in window)) return;
   if (Notification.permission !== 'granted') el('perm-banner').classList.remove('hidden');
 }
 async function reqPermission() {
-  if (!('Notification' in window)) { alert('éç¥éå¯¾å¿'); return; }
+  if (!('Notification' in window)) { alert('通知非対応'); return; }
   const r = await Notification.requestPermission();
   if (r === 'granted') {
     el('perm-banner').classList.add('hidden');
-    log('éç¥è¨±å¯OK', 'ok');
-    new Notification('ä¹ãéããé²æ­¢', { body: 'â éç¥è¨­å®å®äºï¼' });
+    log('通知許可OK', 'ok');
+    new Notification('乗り過ごし防止', { body: '✅ 通知設定完了！' });
   }
 }
 function sendNotif(msg, level) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
-    const n = new Notification('ð ä¹ãéããé²æ­¢', {
+    const n = new Notification('🚃 乗り過ごし防止', {
       body: msg.replace(/\n/g, ' '),
       requireInteraction: level >= 2,
       silent: false
@@ -578,9 +578,9 @@ function sendNotif(msg, level) {
   } catch(e) {}
 }
 
-// ââââââââââââââââââââââââââââââ
-//  é³é¿ï¼Web Audio APIï¼
-// ââââââââââââââââââââââââââââââ
+// ──────────────────────────────
+//  音響（Web Audio API）
+// ──────────────────────────────
 function initAudio() {
   if (audioCtx) return;
   try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
@@ -609,46 +609,46 @@ function vibrate(level) {
   navigator.vibrate(level >= 2 ? [500,200,500,200,500] : [300,150,300]);
 }
 
-// â ããã¯ã°ã©ã¦ã³ãé³å£°ã­ã¼ãã¢ã©ã¤ã â
+// ─ バックグラウンド音声キープアライブ ─
 function startBgAudio() {
   if (!audioCtx || !el('opt-bgaudio').checked) return;
   if (audioCtx.state === 'suspended') audioCtx.resume();
   try {
     bgOsc = audioCtx.createOscillator();
     const g = audioCtx.createGain();
-    g.gain.value = 0.001;            // ã»ã¼ç¡é³
+    g.gain.value = 0.001;            // ほぼ無音
     bgOsc.connect(g); g.connect(audioCtx.destination);
     bgOsc.start();
-    log('BGé³å£°ã­ã¼ãã¢ã©ã¤ãéå§', 'info');
+    log('BG音声キープアライブ開始', 'info');
   } catch(e) {}
 }
 function stopBgAudio() {
   if (bgOsc) { try { bgOsc.stop(); } catch(e) {} bgOsc = null; }
 }
 
-// âââââââââââââââââââââââââââââ
+// ──────────────────────────────
 //  Wake Lock
-// ââââââââââââââââââââââââââââââ
+// ──────────────────────────────
 async function reqWake() {
   if (!('wakeLock' in navigator) || !el('opt-wake').checked) return;
   try {
     wakeLock = await navigator.wakeLock.request('screen');
-    log('ç»é¢ã¹ãªã¼ãé²æ­¢ ON', 'ok');
+    log('画面スリープ防止 ON', 'ok');
     wakeLock.addEventListener('release', () => {
-      log('Wake Lock è§£é¤', 'info');
+      log('Wake Lock 解除', 'info');
       if (watching) setTimeout(reqWake, 800);
     });
-  } catch(e) { log('Wake Lockä¸å¯: ' + e.message, 'info'); }
+  } catch(e) { log('Wake Lock不可: ' + e.message, 'info'); }
 }
 async function relWake() { if (wakeLock) { try { await wakeLock.release(); } catch(e) {} wakeLock=null; } }
 function handleWakeToggle(on) { if (on && watching) reqWake(); else relWake(); }
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && watching) { reqWake(); log('ç»é¢å¾©å¸°', 'info'); }
+  if (document.visibilityState === 'visible' && watching) { reqWake(); log('画面復帰', 'info'); }
 });
 
-// ââââââââââââââââââââââââââââââ
-//  UI ã¦ã¼ãã£ãªãã£
-// ââââââââââââââââââââââââââââââ
+// ──────────────────────────────
+//  UI ユーティリティ
+// ──────────────────────────────
 function el(id) { return document.getElementById(id); }
 
 function uiState() {
@@ -659,7 +659,7 @@ function uiState() {
 
 function setBadge(s) {
   const b = el('badge');
-  const map = { idle:'å¾æ©ä¸­', watch:'ç£è¦ä¸­', alert:'â ï¸ ã¢ã©ã¼ã' };
+  const map = { idle:'待機中', watch:'監視中', alert:'⚠️ アラート' };
   b.textContent = map[s] || s;
   b.className = 'badge ' + s;
 }
@@ -688,11 +688,11 @@ function updMarker(lon) {
 function tickTime() {
   const ok = inTW();
   const tw = el('tw-state');
-  tw.textContent = ok ? 'â æéå' : nextTW();
+  tw.textContent = ok ? '✅ 時間内' : nextTW();
   tw.className = 'time-state ' + (ok ? 'on' : 'off');
 }
 function inTW() { const h = new Date().getHours(); return TW.some(w => h >= w.s && h < w.e); }
-function nextTW() { const h=new Date().getHours(); if(h<6)return'æ¬¡:6:00'; if(h<17)return'æ¬¡:17:00'; return'æ¬¡:ç¿6:00'; }
+function nextTW() { const h=new Date().getHours(); if(h<6)return'次:6:00'; if(h<17)return'次:17:00'; return'次:翌6:00'; }
 
 function toggleSettings() { el('settings').classList.toggle('hidden'); }
 
@@ -705,7 +705,7 @@ function log(msg, type='info') {
   while (list.children.length > 60) list.removeChild(list.lastChild);
 }
 
-// â Haversine â
+// ─ Haversine ─
 function hav(a1,o1,a2,o2) {
   const R=6371, dr=Math.PI/180;
   const dLat=(a2-a1)*dr, dLon=(o2-o1)*dr;
