@@ -288,8 +288,8 @@
     </div>
     <div class="bar-wrap"><div class="bar-fill" id="bf-ofuna" style="width:0;background:var(--info)"></div></div>
     <div class="dots">
-      <div class="dot" id="dot-of2" title="2 km"></div>
-      <div class="dot" id="dot-of5" title="500 m"></div>
+      <div class="dot" id="dot-of1" title="1 km"></div>
+      <div class="dot" id="dot-of3" title="300 m"></div>
     </div>
   </div>
 
@@ -305,6 +305,22 @@
     <div class="bar-wrap"><div class="bar-fill" id="bf-chiga" style="width:0;background:var(--success)"></div></div>
     <div class="dots">
       <div class="dot" id="dot-ch15" title="1.5 km"></div>
+    </div>
+  </div>
+
+  <div class="stn-card" id="card-zushi">
+    <div class="stn-top">
+      <div class="stn-name">🏠 逗子駅</div>
+      <span class="stn-tag exit">下車（帰り）</span>
+    </div>
+    <div class="dist-row">
+      <div class="dist-val far" id="dv-zushi">—</div>
+      <div class="dist-unit" id="du-zushi">km</div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" id="bf-zushi" style="width:0;background:var(--success)"></div></div>
+    <div class="dots">
+      <div class="dot" id="dot-zu1" title="1 km"></div>
+      <div class="dot" id="dot-zu3" title="300 m"></div>
     </div>
   </div>
 
@@ -324,6 +340,7 @@
     <button class="btn btn-stop hidden" id="btn-stop" onclick="stopWatch()">⏹ 監視停止</button>
     <button class="btn btn-test" onclick="testAlert('ofuna')">🔔 大船テスト</button>
     <button class="btn btn-test" onclick="testAlert('chiga')">🔔 茅ヶ崎テスト</button>
+    <button class="btn btn-test" onclick="testAlert('zushi')">🔔 逗子テスト</button>
     <button class="btn btn-sec" onclick="toggleSettings()">⚙ 設定</button>
     <button class="btn btn-sec" onclick="resetFired()">↺ リセット</button>
   </div>
@@ -367,11 +384,15 @@ const STN = {
 
 const ALERTS = {
   ofuna: [
-    { id: 'of2',  dist: 2.0, msg: '🚃 まもなく大船駅！\n乗り換え準備を',           level: 1, dotId: 'dot-of2' },
-    { id: 'of5',  dist: 0.5, msg: '⚠️ 大船駅まであと500m！\n今すぐ乗り換え準備！', level: 2, dotId: 'dot-of5' }
+    { id: 'of1',  dist: 1.0, msg: '🚃 まもなく大船駅！\n乗り換え準備を',           level: 1, dotId: 'dot-of1' },
+    { id: 'of3',  dist: 0.3, msg: '⚠️ 大船駅まであと300m！\n今すぐ乗り換え準備！', level: 2, dotId: 'dot-of3' }
   ],
   chiga: [
     { id: 'ch15', dist: 1.5, msg: '🏁 まもなく茅ヶ崎駅！\n降車準備を',             level: 1, dotId: 'dot-ch15' }
+  ],
+  zushi: [
+    { id: 'zu1',  dist: 1.0, msg: '🏠 まもなく逗子駅！\n降車準備を',               level: 1, dotId: 'dot-zu1' },
+    { id: 'zu3',  dist: 0.3, msg: '⚠️ 逗子駅まであと300m！\n今すぐ降車準備！',     level: 2, dotId: 'dot-zu3' }
   ]
 };
 
@@ -388,6 +409,7 @@ let fired = new Set();
 let audioCtx = null, bgOsc = null;
 let checkTimer = null, overlayTimer = null;
 let wasTrain = false;   // trip detection
+let prevDist = {};      // 駅ごとの前回距離（通過検知用）
 
 // ─── 初期化 ───
 document.addEventListener('DOMContentLoaded', () => {
@@ -468,7 +490,7 @@ function onPos(p) {
   else { sl.textContent='🚶 低速'; sl.className='speed-label nottrain'; }
 
   // ─ Trip detection: 新乗車でアラートリセット ─
-  if (isTrain && !wasTrain) { fired.clear(); clearDots(); log('🚃 乗車検知 → アラートリセット', 'ok'); }
+  if (isTrain && !wasTrain) { fired.clear(); clearDots(); prevDist = {}; log('🚃 乗車検知 → アラートリセット', 'ok'); }
   wasTrain = isTrain;
 
   // ─ GPS info ─
@@ -480,8 +502,10 @@ function onPos(p) {
   // ─ 距離 ─
   const dOfuna = hav(lat, lon, STN.ofuna.lat, STN.ofuna.lon);
   const dChiga = hav(lat, lon, STN.chiga.lat, STN.chiga.lon);
+  const dZushi = hav(lat, lon, STN.zushi.lat, STN.zushi.lon);
   updDist('ofuna', dOfuna, 25);
   updDist('chiga', dChiga, 20);
+  updDist('zushi', dZushi, 15);
 
   // ─ ルートマーカー ─
   updMarker(lon);
@@ -490,6 +514,7 @@ function onPos(p) {
   if (watching && isTrain && inTW()) {
     checkAlerts('ofuna', dOfuna);
     checkAlerts('chiga', dChiga);
+    checkAlerts('zushi', dZushi);
     setBadge('watch');
   } else if (watching) {
     setBadge('watch');
@@ -505,6 +530,19 @@ function onErr(e) {
 //  アラート判定 & 発火
 // ──────────────────────────────
 function checkAlerts(key, dist) {
+  const prev = prevDist[key] || 999;
+  // 駅を通過して離れたら（最接近後に5km以上離れた）アラートをリセット
+  // → 帰りの接近時に再発火できる
+  if (prev < 3 && dist > 5) {
+    (ALERTS[key] || []).forEach(a => {
+      fired.delete(a.id);
+      const dot = el(a.dotId);
+      if (dot) dot.classList.remove('on', 'done');
+    });
+    log('🔄 ' + key + '駅通過 → アラート再有効化', 'ok');
+  }
+  prevDist[key] = dist;
+
   (ALERTS[key] || []).forEach(a => {
     const dot = el(a.dotId);
     if (dist <= a.dist) {
@@ -542,10 +580,12 @@ function dismissOverlay() { el('overlay').classList.remove('show'); clearTimeout
 // ─ Test ─
 function testAlert(key) {
   initAudio();
-  const msg = key === 'ofuna'
-    ? '🚃 まもなく大船駅！\n乗り換え準備を（テスト）'
-    : '🏁 まもなく茅ヶ崎駅！\n降車準備を（テスト）';
-  fireAlert(msg, 1);
+  const msgs = {
+    ofuna: '🚃 まもなく大船駅！\n乗り換え準備を（テスト）',
+    chiga: '🏁 まもなく茅ヶ崎駅！\n降車準備を（テスト）',
+    zushi: '🏠 まもなく逗子駅！\n降車準備を（テスト）'
+  };
+  fireAlert(msgs[key] || msgs.ofuna, 1);
 }
 function resetFired() { fired.clear(); clearDots(); log('アラートリセット', 'info'); }
 function clearDots() { document.querySelectorAll('.dot').forEach(d => d.classList.remove('on','done')); }
@@ -665,15 +705,16 @@ function setBadge(s) {
 }
 
 function updDist(key, dist, maxD) {
-  const pre = key === 'ofuna' ? 'ofuna' : 'chiga';
-  const vEl = el('dv-' + pre), uEl = el('du-' + pre), bEl = el('bf-' + pre), cEl = el('card-' + pre);
+  const vEl = el('dv-' + key), uEl = el('du-' + key), bEl = el('bf-' + key), cEl = el('card-' + key);
+  if (!vEl) return;
   if (dist < 1) { vEl.textContent = (dist*1000).toFixed(0); uEl.textContent = 'm'; }
   else           { vEl.textContent = dist.toFixed(1);        uEl.textContent = 'km'; }
   const pct = Math.max(0, Math.min(100, (1 - dist/maxD)*100));
   bEl.style.width = pct + '%';
+  const defaultBar = key==='ofuna' ? 'var(--info)' : 'var(--success)';
   if (dist <= 0.5)      { vEl.className='dist-val close'; cEl.className='stn-card danger'; bEl.style.background='var(--danger)'; }
   else if (dist <= 2.0)  { vEl.className='dist-val mid';   cEl.className='stn-card near';   bEl.style.background='var(--warning)'; }
-  else                    { vEl.className='dist-val far';   cEl.className='stn-card';        bEl.style.background = key==='ofuna'?'var(--info)':'var(--success)'; }
+  else                    { vEl.className='dist-val far';   cEl.className='stn-card';        bEl.style.background = defaultBar; }
 }
 
 function updMarker(lon) {
