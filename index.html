@@ -499,8 +499,10 @@ function onPos(p) {
   // 乗車中フラグ: 電車速度になったらON、停車(5km/h以下)でOFF
   if (spdInRange && !onTrip) {
     onTrip = true;
-    fired.clear(); clearDots(); prevDist = {};
-    log('🚃 乗車検知 → アラートリセット', 'ok');
+    // fired / prevDist はリセットしない:
+    // 直前に到着した駅の近くで再乗車しても再発火しないようにするため。
+    // 各駅のアラートは checkAlerts 内の「5km以上離れた」判定で個別に再有効化される。
+    log('🚃 乗車検知', 'ok');
   } else if (onTrip && speed <= STOP_SPD) {
     onTrip = false;
     log('🛑 停車検知', 'info');
