@@ -230,7 +230,7 @@
 
 <!-- ─── Header ─── -->
 <div class="header">
-  <h1>🚃 乗り過ごし防止</h1>
+  <h1>🚃 乗り過ごし防止 <span style="font-size:10px;color:var(--text2);font-weight:400">v2.0</span></h1>
   <span class="badge idle" id="badge">待機中</span>
 </div>
 
@@ -351,7 +351,7 @@
     <div class="srow"><span class="lbl">速度で電車判定</span><label class="tog"><input type="checkbox" id="opt-speed" checked><span class="sl"></span></label></div>
     <div class="srow"><span class="lbl">画面スリープ防止</span><label class="tog"><input type="checkbox" id="opt-wake" checked onchange="handleWakeToggle(this.checked)"><span class="sl"></span></label></div>
     <div class="srow"><span class="lbl">アラート繰り返し</span><span class="val">2回</span></div>
-    <div class="srow"><span class="lbl">電車速度範囲</span><span class="val">30〜120 km/h</span></div>
+    <div class="srow"><span class="lbl">電車速度篅囲</span><span class="val">30〜120 km/h</span></div>
     <div class="srow"><span class="lbl">バックグラウンド音声</span><label class="tog"><input type="checkbox" id="opt-bgaudio" checked><span class="sl"></span></label></div>
   </div>
 
@@ -384,14 +384,14 @@ const STN = {
 
 const ALERTS = {
   ofuna: [
-    { id: 'of1',  dist: 1.0, msg: '🚃 まもなく大船駅！\n乗り換え準備を',           level: 1, dotId: 'dot-of1' },
+    { id: 'of1',  dist: 1.0, msg: '🚃 まもなく大船駡！\n乗り換え準備を',           level: 1, dotId: 'dot-of1' },
     { id: 'of3',  dist: 0.3, msg: '⚠️ 大船駅まであと300m！\n今すぐ乗り換え準備！', level: 2, dotId: 'dot-of3' }
   ],
   chiga: [
     { id: 'ch15', dist: 1.5, msg: '🏁 まもなく茅ヶ崎駅！\n降車準備を',             level: 1, dotId: 'dot-ch15' }
   ],
   zushi: [
-    { id: 'zu1',  dist: 1.0, msg: '🏠 まもなく逗子駅！\n降車準備を',               level: 1, dotId: 'dot-zu1' },
+    { id: 'zu1',  dist: 1.0, msg: '🏠 まもなく逗子駅！\n降�-準備を',               level: 1, dotId: 'dot-zu1' },
     { id: 'zu3',  dist: 0.3, msg: '⚠️ 逗子駅まであと300m！\n今すぐ降車準備！',     level: 2, dotId: 'dot-zu3' }
   ]
 };
@@ -409,6 +409,7 @@ let fired = new Set();
 let audioCtx = null, bgOsc = null;
 let checkTimer = null, overlayTimer = null;
 let wasTrain = false;   // trip detection
+let onTrip = false;     // 乗車中フラグ（一度電車判客→停車まで維持）
 let prevDist = {};      // 駅ごとの前回距離（通過検知用）
 
 // ─── 初期化 ───
@@ -445,7 +446,7 @@ function startWatch() {
   initAudio();                       // ユーザージェスチャー後に初期化
   watching = true;
   watchId = navigator.geolocation.watchPosition(onPos, onErr, {
-    enableHighAccuracy: true, maximumAge: 3000, timeout: 15000
+    enableHighAccuracy: true, maximumAge: 0, timeout: 10000
   });
   reqWake();
   startBgAudio();
@@ -455,7 +456,7 @@ function startWatch() {
 }
 function stopWatch() {
   if (!watching) return;
-  watching = false;
+  watching = false; onTrip = false;
   if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
   relWake(); stopBgAudio();
   if (checkTimer) { clearInterval(checkTimer); checkTimer = null; }
@@ -468,6 +469,16 @@ function stopWatch() {
 // ──────────────────────────────
 function onPos(p) {
   const { latitude: lat, longitude: lon, accuracy: acc, speed: gspd } = p.coords;
+
+  // 位置ジャンプ検出: 前回から1秒あたり500m以上移動は異常 → 無視
+  if (prevPos && prevTime) {
+    const jumpD = hav(prevPos.lat, prevPos.lon, lat, lon) * 1000; // m
+    const jumpDt = (p.timestamp - prevTime) / 1000; // sec
+    if (jumpDt > 0 && jumpDt < 30 && (jumpD / jumpDt) > 500) {
+      log('⚠️ GPS異常ジャンプ検出 (' + (jumpD/1000).toFixed(1) + 'km) → 無視', 'alert');
+      return; // この測位データを捨てる
+    }
+  }
 
   // 速度（GPS優先、なければ位置差分で計算）
   let calcSpd = null;
@@ -482,16 +493,27 @@ function onPos(p) {
   // ─ UI: 速度 ─
   el('spd-num').textContent = Math.round(speed);
   const useSpd = el('opt-speed').checked;
-  const isTrain = !useSpd || (speed >= SPD_MIN && speed <= SPD_MAX);
-  el('spd-num').style.color = isTrain ? 'var(--success)' : (speed > SPD_MAX ? 'var(--warning)' : 'var(--info)');
-  const sl = el('spd-label');
-  if (isTrain) { sl.textContent='🚃 電車判定'; sl.className='speed-label train'; }
-  else if (speed > SPD_MAX) { sl.textContent='✈️ 速度超過'; sl.className='speed-label nottrain'; }
-  else { sl.textContent='🚶 低速'; sl.className='speed-label nottrain'; }
+  const spdInRange = !useSpd || (speed >= SPD_MIN && speed <= SPD_MAX);
+  const STOP_SPD = 5;  // 停車判定の閾値(km/h)
 
-  // ─ Trip detection: 新乗車でアラートリセット ─
-  if (isTrain && !wasTrain) { fired.clear(); clearDots(); prevDist = {}; log('🚃 乗車検知 → アラートリセット', 'ok'); }
-  wasTrain = isTrain;
+  // 乗車中フラグ: 電車速度になったらON、停車(5km/h以下)でOFF
+  if (spdInRange && !onTrip) {
+    onTrip = true;
+    fired.clear(); clearDots(); prevDist = {};
+    log('🚃 乗車検知 → アラートリセット', 'ok');
+  } else if (onTrip && speed <= STOP_SPD) {
+    onTrip = false;
+    log('🛑 停車検知', 'info');
+  }
+
+  // UI表示
+  const showTrain = spdInRange || onTrip;
+  el('spd-num').style.color = showTrain ? 'var(--success)' : (speed > SPD_MAX ? 'var(--warning)' : 'var(--info)');
+  const sl = el('spd-label');
+  if (spdInRange)       { sl.textContent='🚃 電車判定'; sl.className='speed-label train'; }
+  else if (onTrip)      { sl.textContent='🚃 乗車中（減速）'; sl.className='speed-label train'; }
+  else if (speed > SPD_MAX) { sl.textContent='✈️ 速度超過'; sl.className='speed-label nottrain'; }
+  else                  { sl.textContent='🚶 低速'; sl.className='speed-label nottrain'; }
 
   // ─ GPS info ─
   el('g-lat').textContent = lat.toFixed(5);
@@ -510,8 +532,8 @@ function onPos(p) {
   // ─ ルートマーカー ─
   updMarker(lon);
 
-  // ─ アラート判定 ─
-  if (watching && isTrain && inTW()) {
+  // ─ アラート判定（乗車中なら減速中もアラート有効） ─
+  if (watching && onTrip && inTW()) {
     checkAlerts('ofuna', dOfuna);
     checkAlerts('chiga', dChiga);
     checkAlerts('zushi', dZushi);
@@ -582,7 +604,7 @@ function testAlert(key) {
   initAudio();
   const msgs = {
     ofuna: '🚃 まもなく大船駅！\n乗り換え準備を（テスト）',
-    chiga: '🏁 まもなく茅ヶ崎駅！\n降車準備を（テスト）',
+    chiga: '🏁 まもなく茅ヶ崎駅！\n降�-準備を（テスト）',
     zushi: '🏠 まもなく逗子駅！\n降車準備を（テスト）'
   };
   fireAlert(msgs[key] || msgs.ofuna, 1);
