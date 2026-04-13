@@ -11,7 +11,129 @@
   <title>🚃 乗り過ごし防止アラート</title>
   <style>
     :root {
-      --bg: #0f0e17;; gap: 4px; }
+      --bg: #0f0e17;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --accent: #e94560;
+      --text: #fffffe;
+      --text2: #a7a9be;
+      --success: #2dc653;
+      --warning: #f4a261;
+      --danger: #e94560;
+      --info: #48cae4;
+      --radius: 14px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+      min-height: 100vh; min-height: 100dvh;
+      padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+      overflow-x: hidden;
+    }
+
+    /* ─── Header ─── */
+    .header {
+      background: var(--surface); padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header h1 { font-size: 17px; font-weight: 700; }
+    .badge {
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; letter-spacing: .4px;
+    }
+    .badge.idle   { background: rgba(167,169,190,.15); color: var(--text2); }
+    .badge.watch  { background: rgba(45,198,83,.18);  color: var(--success); }
+    .badge.alert  { background: rgba(233,69,96,.2);   color: var(--danger); animation: pulse .9s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+    /* ─── Content ─── */
+    .content { padding: 14px; max-width: 480px; margin: 0 auto; }
+
+    /* ─── Permission Banner ─── */
+    .perm-banner {
+      background: rgba(244,162,97,.12); border: 1px solid rgba(244,162,97,.35);
+      border-radius: var(--radius); padding: 11px 14px; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .perm-banner span { font-size: 13px; color: var(--warning); }
+    .perm-banner button {
+      background: var(--warning); color: #1a1a2e; padding: 5px 12px; border-radius: 8px;
+      border: none; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      font-family: inherit;
+    }
+    .hidden { display: none !important; }
+
+    /* ─── Speed Card ─── */
+    .speed-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 18px 20px; margin-bottom: 10px; text-align: center;
+    }
+    .speed-num { font-size: 60px; font-weight: 800; line-height: 1; color: var(--info); font-variant-numeric: tabular-nums; }
+    .speed-unit { font-size: 16px; color: var(--text2); margin-top: 2px; }
+    .speed-label {
+      margin-top: 6px; font-size: 12px; padding: 3px 10px;
+      border-radius: 20px; display: inline-block;
+    }
+    .speed-label.train    { background: rgba(45,198,83,.15); color: var(--success); }
+    .speed-label.nottrain { background: rgba(167,169,190,.12); color: var(--text2); }
+
+    /* ─── Time Info ─── */
+    .time-row {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 12px 14px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--text2);
+    }
+    .time-state { font-weight: 700; }
+    .time-state.on  { color: var(--success); }
+    .time-state.off { color: var(--text2); }
+
+    /* ─── Route Map ─── */
+    .route-box {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 14px 16px; margin-bottom: 10px; position: relative;
+    }
+    .route-line {
+      display: flex; align-items: center; justify-content: space-between; position: relative;
+    }
+    .route-line::after {
+      content: ''; position: absolute; left: 28px; right: 28px;
+      height: 2px; background: rgba(255,255,255,.15); top: 50%; transform: translateY(-50%);
+    }
+    .route-stn { display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 1; }
+    .route-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--text2); border: 2px solid var(--surface);
+    }
+    .route-dot.on { background: var(--success); }
+    .route-dot.hot { background: var(--danger); animation: pulse .8s infinite; }
+    .route-stn-name { font-size: 10px; color: var(--text2); text-align: center; line-height: 1.3; }
+    .marker {
+      position: absolute; top: 50%; transform: translate(-50%,-50%);
+      z-index: 2; font-size: 16px; transition: left .6s;
+    }
+
+    /* ─── Station Cards ─── */
+    .sec-title {
+      font-size: 11px; font-weight: 700; color: var(--text2);
+      text-transform: uppercase; letter-spacing: .8px; margin: 14px 0 6px;
+    }
+    .stn-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 14px; margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,.04); transition: border-color .3s;
+    }
+    .stn-card.near   { border-color: var(--warning); }
+    .stn-card.danger  { border-color: var(--danger); }
+    .stn-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .stn-name { font-size: 16px; font-weight: 700; }
+    .stn-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+    .stn-tag.xfer { background: rgba(72,202,228,.18); color: var(--info); }
+    .stn-tag.exit { background: rgba(45,198,83,.18); color: var(--success); }
+    .dist-row { display: flex; align-items: baseline; gap: 4px; }
     .dist-val { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
     .dist-val.far  { color: var(--text2); }
     .dist-val.mid  { color: var(--warning); }
@@ -214,8 +336,8 @@
   <!-- Controls -->
   <div class="sec-title">コントロール</div>
   <div class="ctrls">
-    <button class="btn btn-go" id="btn-go" onclick="startWatch()">▶ 監視鞔始</button>
-    <button class="btn btn-stop hidden" id="btn-stop" onclick="stopWatch()">⏹ 監視停歡</button>
+    <button class="btn btn-go" id="btn-go" onclick="startWatch()">▶ 監視開始</button>
+    <button class="btn btn-stop hidden" id="btn-stop" onclick="stopWatch()">⏹ 監視停止</button>
     <button class="btn btn-test" onclick="testAlert('ofuna')">🔔 大船テスト</button>
     <button class="btn btn-test" onclick="testAlert('chiga')">🔔 茅ヶ崎テスト</button>
     <button class="btn btn-test" onclick="testAlert('zushi')">🔔 逗子テスト</button>
